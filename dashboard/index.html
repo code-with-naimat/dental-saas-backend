@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="ur">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clinic Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #16302C;
+    --teal-deep: #0F4C46;
+    --teal-mid: #1B6E63;
+    --mint: #E9F2EE;
+    --paper: #FBFAF6;
+    --line: #D8E3DE;
+    --coral: #D8674A;
+    --muted: #6B7C78;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: 'Work Sans', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+  }
+  h1, h2, h3 { font-family: 'Fraunces', serif; margin: 0; }
+
+  /* ---------- Login screen ---------- */
+  #loginScreen {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  .login-card {
+    width: 100%;
+    max-width: 380px;
+    background: #fff;
+    border: 1px solid var(--line);
+    padding: 40px 32px;
+  }
+  .login-card h1 { font-size: 28px; color: var(--teal-deep); margin-bottom: 4px; }
+  .login-card p { color: var(--muted); margin: 0 0 28px; font-size: 14px; }
+  label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+  input {
+    width: 100%;
+    padding: 11px 12px;
+    border: 1px solid var(--line);
+    background: var(--paper);
+    font-family: 'Work Sans', sans-serif;
+    font-size: 14px;
+    margin-bottom: 18px;
+  }
+  input:focus { outline: 2px solid var(--teal-mid); outline-offset: 1px; }
+  button {
+    cursor: pointer;
+    border: none;
+    font-family: 'Work Sans', sans-serif;
+    font-weight: 500;
+  }
+  .btn-primary {
+    width: 100%;
+    background: var(--teal-deep);
+    color: #fff;
+    padding: 12px;
+    font-size: 14px;
+  }
+  .btn-primary:hover { background: var(--teal-mid); }
+  #loginError { color: var(--coral); font-size: 13px; margin-top: 4px; display: none; }
+
+  /* ---------- Dashboard shell ---------- */
+  #dashboard { display: none; min-height: 100vh; }
+  .sidebar {
+    width: 220px;
+    background: var(--teal-deep);
+    color: #fff;
+    padding: 28px 0;
+    position: fixed;
+    top: 0; bottom: 0; left: 0;
+  }
+  .sidebar h2 { font-size: 19px; padding: 0 24px 24px; color: #fff; }
+  .nav-item {
+    padding: 12px 24px;
+    font-size: 14px;
+    cursor: pointer;
+    color: #CFE3DE;
+    border-left: 3px solid transparent;
+  }
+  .nav-item:hover { background: rgba(255,255,255,0.06); }
+  .nav-item.active {
+    color: #fff;
+    border-left-color: var(--coral);
+    background: rgba(255,255,255,0.08);
+  }
+  .main { margin-left: 220px; padding: 32px 40px; }
+  .topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 28px;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 16px;
+  }
+  .topbar h1 { font-size: 24px; }
+  #logoutBtn {
+    background: none;
+    color: var(--muted);
+    font-size: 13px;
+    text-decoration: underline;
+  }
+
+  .stats-row { display: flex; gap: 16px; margin-bottom: 32px; }
+  .stat-card {
+    flex: 1;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-top: 3px solid var(--teal-mid);
+    padding: 18px 20px;
+  }
+  .stat-card .num { font-family: 'Fraunces', serif; font-size: 30px; color: var(--teal-deep); }
+  .stat-card .label { font-size: 13px; color: var(--muted); }
+
+  table { width: 100%; border-collapse: collapse; background: #fff; }
+  th, td {
+    text-align: right;
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--line);
+    font-size: 14px;
+  }
+  th { color: var(--muted); font-weight: 500; font-size: 12px; }
+  .badge {
+    padding: 3px 10px;
+    font-size: 12px;
+    border-radius: 2px;
+  }
+  .badge-booked { background: #EAF1FB; color: #2E5C9A; }
+  .badge-completed { background: var(--mint); color: var(--teal-deep); }
+  .badge-cancelled { background: #FBEAEA; color: var(--coral); }
+  .badge-unpaid { background: #FBEAEA; color: var(--coral); }
+  .badge-paid { background: var(--mint); color: var(--teal-deep); }
+
+  .empty-state {
+    padding: 40px 20px;
+    text-align: center;
+    color: var(--muted);
+    background: #fff;
+    border: 1px dashed var(--line);
+    font-size: 14px;
+  }
+  .section { display: none; }
+  .section.active { display: block; }
+  .clinic-id-note {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 16px;
+  }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-card">
+    <h1>Clinic Dashboard</h1>
+    <p>Apne clinic account mein sign in karein</p>
+    <label for="email">Email</label>
+    <input type="email" id="email" placeholder="owner@clinic.com">
+    <label for="password">Password</label>
+    <input type="password" id="password" placeholder="••••••••">
+    <button class="btn-primary" onclick="login()">Sign In</button>
+    <p id="loginError"></p>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard">
+  <div class="sidebar">
+    <h2 id="clinicNameLabel">Clinic</h2>
+    <div class="nav-item active" data-section="overview" onclick="showSection('overview')">Overview</div>
+    <div class="nav-item" data-section="appointments" onclick="showSection('appointments')">Appointments</div>
+    <div class="nav-item" data-section="patients" onclick="showSection('patients')">Patients</div>
+    <div class="nav-item" data-section="doctors" onclick="showSection('doctors')">Doctors</div>
+    <div class="nav-item" data-section="invoices" onclick="showSection('invoices')">Invoices</div>
+    <div class="nav-item" data-section="reviews" onclick="showSection('reviews')">Reviews</div>
+  </div>
+
+  <div class="main">
+    <div class="topbar">
+      <h1 id="sectionTitle">Overview</h1>
+      <button id="logoutBtn" onclick="logout()">Logout</button>
+    </div>
+
+    <div id="overview" class="section active">
+      <div class="stats-row">
+        <div class="stat-card"><div class="num" id="statAppointments">-</div><div class="label">Total Appointments</div></div>
+        <div class="stat-card"><div class="num" id="statInvoices">-</div><div class="label">Invoices Generated</div></div>
+        <div class="stat-card"><div class="num" id="statReviews">-</div><div class="label">Reviews Received</div></div>
+      </div>
+    </div>
+
+    <div id="appointments" class="section">
+      <div id="appointmentsTable"></div>
+    </div>
+
+    <div id="patients" class="section">
+      <button class="btn-primary" style="width:auto; padding:9px 18px; margin-bottom:16px;" onclick="openPatientForm()">+ Naya Patient</button>
+      <div id="patientForm" style="display:none; background:#fff; border:1px solid var(--line); padding:18px; margin-bottom:16px;">
+        <input type="hidden" id="patientId">
+        <label>Naam</label><input type="text" id="patientName">
+        <label>Phone</label><input type="text" id="patientPhone">
+        <label>Email</label><input type="text" id="patientEmail">
+        <label>History Notes</label><input type="text" id="patientNotes">
+        <button class="btn-primary" style="width:auto; padding:9px 18px;" onclick="savePatient()">Save</button>
+      </div>
+      <div id="patientsTable"></div>
+    </div>
+
+    <div id="doctors" class="section">
+      <button class="btn-primary" style="width:auto; padding:9px 18px; margin-bottom:16px;" onclick="openDoctorForm()">+ Naya Doctor</button>
+      <div id="doctorForm" style="display:none; background:#fff; border:1px solid var(--line); padding:18px; margin-bottom:16px;">
+        <input type="hidden" id="doctorId">
+        <label>Naam</label><input type="text" id="doctorName">
+        <label>Specialty</label><input type="text" id="doctorSpecialty">
+        <label>Working Hours</label><input type="text" id="doctorHours" placeholder="Mon-Sat 10am-6pm">
+        <button class="btn-primary" style="width:auto; padding:9px 18px;" onclick="saveDoctor()">Save</button>
+      </div>
+      <div id="doctorsTable"></div>
+    </div>
+
+    <div id="invoices" class="section">
+      <div id="invoicesTable"></div>
+    </div>
+
+    <div id="reviews" class="section">
+      <div id="reviewsTable"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Backend URL — deploy karne ke baad isay apne actual server URL se replace karein
+  const API_BASE = "http://localhost:5000";
+
+  function getToken() { return localStorage.getItem("dental_saas_token"); }
+  function getClinicSubdomain() { return localStorage.getItem("dental_saas_subdomain"); }
+
+  function apiFetch(path, options = {}) {
+    return fetch(API_BASE + path, {
+      ...options,
+      headers: {
+        "Content-Type": "application/json",
+        "x-clinic-id": getClinicSubdomain(),
+        "Authorization": "Bearer " + getToken(),
+        ...(options.headers || {}),
+      },
+    }).then((res) => res.json());
+  }
+
+  async function login() {
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+    const errorEl = document.getElementById("loginError");
+    errorEl.style.display = "none";
+
+    try {
+      const res = await fetch(API_BASE + "/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        errorEl.textContent = data.error || "Login nahi ho saka";
+        errorEl.style.display = "block";
+        return;
+      }
+
+      localStorage.setItem("dental_saas_token", data.token);
+      localStorage.setItem("dental_saas_subdomain", data.clinic.subdomain);
+      document.getElementById("clinicNameLabel").textContent = data.clinic.name;
+
+      document.getElementById("loginScreen").style.display = "none";
+      document.getElementById("dashboard").style.display = "flex";
+      loadAllData();
+    } catch (err) {
+      errorEl.textContent = "Server se connect nahi ho saka";
+      errorEl.style.display = "block";
+    }
+  }
+
+  function logout() {
+    localStorage.removeItem("dental_saas_token");
+    localStorage.removeItem("dental_saas_subdomain");
+    document.getElementById("dashboard").style.display = "none";
+    document.getElementById("loginScreen").style.display = "flex";
+  }
+
+  function showSection(name) {
+    document.querySelectorAll(".section").forEach((s) => s.classList.remove("active"));
+    document.querySelectorAll(".nav-item").forEach((n) => n.classList.remove("active"));
+    document.getElementById(name).classList.add("active");
+    document.querySelector(`.nav-item[data-section="${name}"]`).classList.add("active");
+    document.getElementById("sectionTitle").textContent =
+      name.charAt(0).toUpperCase() + name.slice(1);
+  }
+
+  function emptyState(msg) {
+    return `<div class="empty-state">${msg}</div>`;
+  }
+
+  async function loadAllData() {
+    const [appointments, invoices, reviews, patients, doctors] = await Promise.all([
+      apiFetch("/api/appointments"),
+      apiFetch("/api/invoices"),
+      apiFetch("/api/reviews"),
+      apiFetch("/api/patients"),
+      apiFetch("/api/doctors"),
+    ]);
+
+    document.getElementById("statAppointments").textContent = appointments.length || 0;
+    document.getElementById("statInvoices").textContent = invoices.length || 0;
+    document.getElementById("statReviews").textContent = reviews.length || 0;
+
+    renderAppointments(appointments);
+    renderInvoices(invoices);
+    renderReviews(reviews);
+    renderPatients(patients);
+    renderDoctors(doctors);
+  }
+
+  // ---------- Patients ----------
+  function openPatientForm(patient) {
+    document.getElementById("patientForm").style.display = "block";
+    document.getElementById("patientId").value = patient?._id || "";
+    document.getElementById("patientName").value = patient?.name || "";
+    document.getElementById("patientPhone").value = patient?.phone || "";
+    document.getElementById("patientEmail").value = patient?.email || "";
+    document.getElementById("patientNotes").value = patient?.historyNotes || "";
+  }
+
+  async function savePatient() {
+    const id = document.getElementById("patientId").value;
+    const body = {
+      name: document.getElementById("patientName").value,
+      phone: document.getElementById("patientPhone").value,
+      email: document.getElementById("patientEmail").value,
+      historyNotes: document.getElementById("patientNotes").value,
+    };
+    await apiFetch(id ? `/api/patients/${id}` : "/api/patients", {
+      method: id ? "PUT" : "POST",
+      body: JSON.stringify(body),
+    });
+    document.getElementById("patientForm").style.display = "none";
+    loadAllData();
+  }
+
+  async function deletePatient(id) {
+    await apiFetch(`/api/patients/${id}`, { method: "DELETE" });
+    loadAllData();
+  }
+
+  function renderPatients(list) {
+    const el = document.getElementById("patientsTable");
+    if (!list.length) return (el.innerHTML = emptyState("Abhi tak koi patient nahi hai"));
+    el.innerHTML = `
+      <table>
+        <thead><tr><th>Naam</th><th>Phone</th><th>Email</th><th>Notes</th><th></th></tr></thead>
+        <tbody>
+          ${list.map(p => `
+            <tr>
+              <td>${p.name}</td><td>${p.phone || "-"}</td><td>${p.email || "-"}</td><td>${p.historyNotes || "-"}</td>
+              <td>
+                <a href="#" onclick='openPatientForm(${JSON.stringify(p)}); return false;'>Edit</a> |
+                <a href="#" onclick="deletePatient('${p._id}'); return false;">Delete</a>
+              </td>
+            </tr>`).join("")}
+        </tbody>
+      </table>`;
+  }
+
+  // ---------- Doctors ----------
+  function openDoctorForm(doctor) {
+    document.getElementById("doctorForm").style.display = "block";
+    document.getElementById("doctorId").value = doctor?._id || "";
+    document.getElementById("doctorName").value = doctor?.name || "";
+    document.getElementById("doctorSpecialty").value = doctor?.specialty || "";
+    document.getElementById("doctorHours").value = doctor?.workingHours || "";
+  }
+
+  async function saveDoctor() {
+    const id = document.getElementById("doctorId").value;
+    const body = {
+      name: document.getElementById("doctorName").value,
+      specialty: document.getElementById("doctorSpecialty").value,
+      workingHours: document.getElementById("doctorHours").value,
+    };
+    await apiFetch(id ? `/api/doctors/${id}` : "/api/doctors", {
+      method: id ? "PUT" : "POST",
+      body: JSON.stringify(body),
+    });
+    document.getElementById("doctorForm").style.display = "none";
+    loadAllData();
+  }
+
+  async function deleteDoctor(id) {
+    await apiFetch(`/api/doctors/${id}`, { method: "DELETE" });
+    loadAllData();
+  }
+
+  async function setDoctorLogin(id) {
+    const email = prompt("Doctor ka email:");
+    if (!email) return;
+    const password = prompt("Doctor ke liye password set karein:");
+    if (!password) return;
+    await apiFetch("/api/doctor-auth/set-password", {
+      method: "POST",
+      body: JSON.stringify({ doctorId: id, email, password }),
+    });
+    alert("Doctor login set ho gaya. Doctor ab doctor-portal.html se login kar sakta hai.");
+    loadAllData();
+  }
+
+  function renderDoctors(list) {
+    const el = document.getElementById("doctorsTable");
+    if (!list.length) return (el.innerHTML = emptyState("Abhi tak koi doctor nahi hai"));
+    el.innerHTML = `
+      <table>
+        <thead><tr><th>Naam</th><th>Specialty</th><th>Working Hours</th><th>Login</th><th></th></tr></thead>
+        <tbody>
+          ${list.map(d => `
+            <tr>
+              <td>${d.name}</td><td>${d.specialty || "-"}</td><td>${d.workingHours || "-"}</td>
+              <td>${d.email ? d.email : '<span style="color:var(--muted)">Not set</span>'}</td>
+              <td>
+                <a href="#" onclick='openDoctorForm(${JSON.stringify(d)}); return false;'>Edit</a> |
+                <a href="#" onclick="deleteDoctor('${d._id}'); return false;">Delete</a> |
+                <a href="#" onclick="setDoctorLogin('${d._id}'); return false;">Set Login</a>
+              </td>
+            </tr>`).join("")}
+        </tbody>
+      </table>`;
+  }
+
+  function renderAppointments(list) {
+    const el = document.getElementById("appointmentsTable");
+    if (!list.length) return (el.innerHTML = emptyState("Abhi tak koi appointment nahi hai"));
+    el.innerHTML = `
+      <table>
+        <thead><tr><th>Patient</th><th>Doctor</th><th>Date/Time</th><th>Source</th><th>Status</th></tr></thead>
+        <tbody>
+          ${list.map(a => `
+            <tr>
+              <td>${a.patientId?.name || "-"}</td>
+              <td>${a.doctorId?.name || "-"}</td>
+              <td>${new Date(a.dateTime).toLocaleString()}</td>
+              <td>${a.source}</td>
+              <td><span class="badge badge-${a.status}">${a.status}</span></td>
+            </tr>`).join("")}
+        </tbody>
+      </table>`;
+  }
+
+  function renderInvoices(list) {
+    const el = document.getElementById("invoicesTable");
+    if (!list.length) return (el.innerHTML = emptyState("Abhi tak koi invoice generate nahi hui"));
+    el.innerHTML = `
+      <table>
+        <thead><tr><th>Patient</th><th>Amount</th><th>Status</th><th>PDF</th></tr></thead>
+        <tbody>
+          ${list.map(i => `
+            <tr>
+              <td>${i.appointmentId?.patientId?.name || "-"}</td>
+              <td>PKR ${i.amount}</td>
+              <td><span class="badge badge-${i.status}">${i.status}</span></td>
+              <td><a href="${API_BASE}${i.pdfUrl}" target="_blank">Dekhein</a></td>
+            </tr>`).join("")}
+        </tbody>
+      </table>`;
+  }
+
+  function renderReviews(list) {
+    const el = document.getElementById("reviewsTable");
+    if (!list.length) return (el.innerHTML = emptyState("Abhi tak koi review nahi mila"));
+    el.innerHTML = `
+      <table>
+        <thead><tr><th>Patient</th><th>Rating</th><th>Comment</th></tr></thead>
+        <tbody>
+          ${list.map(r => `
+            <tr>
+              <td>${r.patientId?.name || "-"}</td>
+              <td>${"★".repeat(r.rating || 0)}${"☆".repeat(5 - (r.rating || 0))}</td>
+              <td>${r.comment || "-"}</td>
+            </tr>`).join("")}
+        </tbody>
+      </table>`;
+  }
+</script>
+
+</body>
+</html>

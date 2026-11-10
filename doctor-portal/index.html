@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ur">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Doctor Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #16302C; --teal-deep: #0F4C46; --teal-mid: #1B6E63;
+    --mint: #E9F2EE; --paper: #FBFAF6; --line: #D8E3DE; --coral: #D8674A; --muted: #6B7C78;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: 'Work Sans', sans-serif; background: var(--paper); color: var(--ink); }
+  h1, h2 { font-family: 'Fraunces', serif; margin: 0; }
+
+  #loginScreen { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
+  .login-card { width: 100%; max-width: 380px; background: #fff; border: 1px solid var(--line); padding: 40px 32px; }
+  .login-card h1 { font-size: 26px; color: var(--teal-deep); margin-bottom: 4px; }
+  .login-card p { color: var(--muted); margin: 0 0 28px; font-size: 14px; }
+  label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+  input { width: 100%; padding: 11px 12px; border: 1px solid var(--line); background: var(--paper); font-family: 'Work Sans', sans-serif; font-size: 14px; margin-bottom: 18px; }
+  button { cursor: pointer; border: none; font-family: 'Work Sans', sans-serif; font-weight: 500; }
+  .btn-primary { width: 100%; background: var(--teal-deep); color: #fff; padding: 12px; font-size: 14px; }
+  .btn-primary:hover { background: var(--teal-mid); }
+  #loginError { color: var(--coral); font-size: 13px; display: none; }
+
+  #portal { display: none; max-width: 720px; margin: 0 auto; padding: 40px 24px; }
+  .topbar { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 1px solid var(--line); padding-bottom: 16px; margin-bottom: 28px; }
+  #logoutBtn { background: none; color: var(--muted); font-size: 13px; text-decoration: underline; }
+  .panel { background: #fff; border: 1px solid var(--line); padding: 22px; margin-bottom: 24px; }
+  .panel h2 { font-size: 18px; margin-bottom: 16px; }
+  .save-btn { width: auto; padding: 10px 20px; }
+
+  table { width: 100%; border-collapse: collapse; }
+  th, td { text-align: right; padding: 10px 12px; border-bottom: 1px solid var(--line); font-size: 14px; }
+  th { color: var(--muted); font-weight: 500; font-size: 12px; }
+  .empty-state { padding: 30px; text-align: center; color: var(--muted); font-size: 14px; }
+</style>
+</head>
+<body>
+
+<div id="loginScreen">
+  <div class="login-card">
+    <h1>Doctor Portal</h1>
+    <p>Apni working hours manage karein aur apne appointments dekhein</p>
+    <label>Email</label><input type="email" id="email">
+    <label>Password</label><input type="password" id="password">
+    <button class="btn-primary" onclick="login()">Sign In</button>
+    <p id="loginError"></p>
+  </div>
+</div>
+
+<div id="portal">
+  <div class="topbar">
+    <h1 id="doctorNameLabel">Doctor</h1>
+    <button id="logoutBtn" onclick="logout()">Logout</button>
+  </div>
+
+  <div class="panel">
+    <h2>Meri Working Hours</h2>
+    <label>Specialty</label><input type="text" id="specialty">
+    <label>Working Hours</label><input type="text" id="workingHours" placeholder="Mon-Sat 10am-6pm">
+    <button class="btn-primary save-btn" onclick="saveProfile()">Update Karein</button>
+  </div>
+
+  <div class="panel">
+    <h2>Mere Appointments</h2>
+    <div id="appointmentsTable"></div>
+  </div>
+</div>
+
+<script>
+  // Deploy karte waqt API_BASE aur CLINIC_SUBDOMAIN update karein
+  const API_BASE = "http://localhost:5000";
+  const CLINIC_SUBDOMAIN = "smilecare";
+
+  function getToken() { return localStorage.getItem("doctor_portal_token"); }
+
+  function apiFetch(path, options = {}) {
+    return fetch(API_BASE + path, {
+      ...options,
+      headers: {
+        "Content-Type": "application/json",
+        "x-clinic-id": CLINIC_SUBDOMAIN,
+        "Authorization": "Bearer " + getToken(),
+        ...(options.headers || {}),
+      },
+    }).then((res) => res.json());
+  }
+
+  async function login() {
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+    const errorEl = document.getElementById("loginError");
+    errorEl.style.display = "none";
+
+    const res = await fetch(API_BASE + "/api/doctor-auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-clinic-id": CLINIC_SUBDOMAIN },
+      body: JSON.stringify({ email, password }),
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      errorEl.textContent = data.error || "Login nahi ho saka";
+      errorEl.style.display = "block";
+      return;
+    }
+
+    localStorage.setItem("doctor_portal_token", data.token);
+    document.getElementById("doctorNameLabel").textContent = "Assalam-o-Alaikum, " + data.doctor.name;
+    document.getElementById("loginScreen").style.display = "none";
+    document.getElementById("portal").style.display = "block";
+    loadData();
+  }
+
+  function logout() {
+    localStorage.removeItem("doctor_portal_token");
+    document.getElementById("portal").style.display = "none";
+    document.getElementById("loginScreen").style.display = "flex";
+  }
+
+  async function loadData() {
+    const me = await apiFetch("/api/doctor-portal/me");
+    document.getElementById("specialty").value = me.specialty || "";
+    document.getElementById("workingHours").value = me.workingHours || "";
+
+    const appointments = await apiFetch("/api/doctor-portal/appointments");
+    const el = document.getElementById("appointmentsTable");
+    if (!appointments.length) {
+      el.innerHTML = `<div class="empty-state">Abhi tak koi appointment nahi hai</div>`;
+      return;
+    }
+    el.innerHTML = `
+      <table>
+        <thead><tr><th>Patient</th><th>Date/Time</th><th>Status</th></tr></thead>
+        <tbody>
+          ${appointments.map(a => `
+            <tr>
+              <td>${a.patientId?.name || "-"}</td>
+              <td>${new Date(a.dateTime).toLocaleString()}</td>
+              <td>${a.status}</td>
+            </tr>`).join("")}
+        </tbody>
+      </table>`;
+  }
+
+  async function saveProfile() {
+    await apiFetch("/api/doctor-portal/me", {
+      method: "PUT",
+      body: JSON.stringify({
+        specialty: document.getElementById("specialty").value,
+        workingHours: document.getElementById("workingHours").value,
+      }),
+    });
+    alert("Update ho gaya!");
+  }
+</script>
+
+</body>
+</html>

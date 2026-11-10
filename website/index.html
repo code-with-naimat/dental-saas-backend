@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="ur">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title id="pageTitle">Dental Clinic</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #16302C;
+    --teal-deep: #0F4C46;
+    --teal-mid: #1B6E63;
+    --ivory: #FAF7F2;
+    --mint: #E9F2EE;
+    --line: #DCE6E1;
+    --coral: #D8674A;
+    --muted: #5E706C;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    font-family: 'Work Sans', sans-serif;
+    background: var(--ivory);
+    color: var(--ink);
+    line-height: 1.5;
+  }
+  h1, h2, h3 { font-family: 'Fraunces', serif; margin: 0; font-weight: 600; }
+  a { color: inherit; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 32px; }
+
+  /* ---------- Nav ---------- */
+  nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px 0;
+  }
+  .logo { font-family: 'Fraunces', serif; font-size: 20px; color: var(--teal-deep); font-weight: 600; }
+  .nav-links { display: flex; gap: 28px; font-size: 14px; color: var(--muted); }
+  .nav-links a:hover { color: var(--teal-deep); }
+  .btn {
+    display: inline-block;
+    padding: 11px 22px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+  }
+  .btn-primary { background: var(--teal-deep); color: #fff; }
+  .btn-primary:hover { background: var(--teal-mid); }
+
+  /* ---------- Hero ---------- */
+  .hero {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 48px;
+    align-items: center;
+    padding: 56px 0 80px;
+  }
+  .hero h1 { font-size: 44px; line-height: 1.15; color: var(--teal-deep); max-width: 480px; }
+  .hero p { font-size: 16px; color: var(--muted); max-width: 420px; margin: 20px 0 28px; }
+  .hero-art { display: flex; justify-content: center; }
+
+  /* ---------- Services ---------- */
+  .section-label { font-size: 13px; color: var(--coral); margin-bottom: 8px; }
+  .services { padding: 64px 0; }
+  .services h2 { font-size: 30px; margin-bottom: 32px; max-width: 460px; }
+  .service-list { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); }
+  .service-item { background: var(--ivory); padding: 26px 24px; border-top: 3px solid var(--teal-mid); }
+  .service-item h3 { font-size: 17px; margin-bottom: 8px; }
+  .service-item p { font-size: 14px; color: var(--muted); margin: 0; }
+
+  /* ---------- Doctors ---------- */
+  .doctors { padding: 64px 0; border-top: 1px solid var(--line); }
+  .doctors h2 { font-size: 30px; margin-bottom: 32px; }
+  #doctorList { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; }
+  .doctor-card { background: #fff; border: 1px solid var(--line); padding: 20px; }
+  .doctor-card .name { font-family: 'Fraunces', serif; font-size: 17px; color: var(--teal-deep); }
+  .doctor-card .specialty { font-size: 13px; color: var(--coral); margin: 4px 0; }
+  .doctor-card .hours { font-size: 13px; color: var(--muted); }
+
+  /* ---------- CTA ---------- */
+  .cta {
+    background: var(--teal-deep);
+    color: #fff;
+    padding: 56px 0;
+    text-align: center;
+    margin-top: 40px;
+  }
+  .cta h2 { color: #fff; font-size: 28px; margin-bottom: 12px; }
+  .cta p { color: #CFE3DE; margin-bottom: 24px; }
+  .cta .btn-primary { background: var(--coral); }
+  .cta .btn-primary:hover { background: #C25638; }
+
+  footer { padding: 32px 0; text-align: center; color: var(--muted); font-size: 13px; }
+
+  /* ---------- Floating chat widget ---------- */
+  #chatToggle {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    background: var(--coral);
+    color: #fff;
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.18);
+    z-index: 999;
+  }
+  #chatPanel {
+    position: fixed;
+    bottom: 92px;
+    right: 24px;
+    width: 320px;
+    max-height: 440px;
+    background: #fff;
+    border: 1px solid var(--line);
+    display: none;
+    flex-direction: column;
+    z-index: 999;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+  }
+  #chatPanel.open { display: flex; }
+  .chat-header {
+    background: var(--teal-deep);
+    color: #fff;
+    padding: 14px 16px;
+    font-size: 14px;
+    font-family: 'Fraunces', serif;
+  }
+  #chatMessages { flex: 1; overflow-y: auto; padding: 14px; font-size: 13px; display: flex; flex-direction: column; gap: 10px; }
+  .msg { max-width: 85%; padding: 8px 12px; }
+  .msg.bot { background: var(--mint); align-self: flex-start; }
+  .msg.user { background: var(--teal-deep); color: #fff; align-self: flex-end; }
+  .chat-input-row { display: flex; border-top: 1px solid var(--line); }
+  .chat-input-row input {
+    flex: 1;
+    border: none;
+    padding: 12px;
+    font-family: 'Work Sans', sans-serif;
+    font-size: 13px;
+  }
+  .chat-input-row input:focus { outline: none; }
+  .chat-input-row button {
+    background: var(--teal-deep);
+    color: #fff;
+    padding: 0 16px;
+    font-size: 13px;
+  }
+
+  @media (max-width: 720px) {
+    .hero { grid-template-columns: 1fr; }
+    .service-list { grid-template-columns: 1fr; }
+    #chatPanel { width: calc(100% - 32px); right: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <nav>
+    <div class="logo" id="clinicNameNav">Dental Clinic</div>
+    <div class="nav-links">
+      <a href="#services">Services</a>
+      <a href="#doctors">Doctors</a>
+      <a href="#contact">Contact</a>
+    </div>
+    <a class="btn btn-primary" href="#" onclick="openChat(); return false;">Appointment Book Karein</a>
+  </nav>
+
+  <section class="hero">
+    <div>
+      <h1 id="heroHeadline">Aapki muskurahat, hamari zimmedari</h1>
+      <p>Modern dental care, ek friendly team ke sath. Booking, reminders, aur sawalat ke liye hamara AI assistant 24/7 hazir hai.</p>
+      <a class="btn btn-primary" href="#" onclick="openChat(); return false;">Abhi Appointment Book Karein</a>
+    </div>
+    <div class="hero-art">
+      <svg width="280" height="280" viewBox="0 0 280 280" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="140" cy="140" r="130" fill="#E9F2EE"/>
+        <path d="M140 90c-22 0-36 16-36 40 0 30 14 70 24 70 8 0 8-24 12-24s4 24 12 24c10 0 24-40 24-70 0-24-14-40-36-40z" fill="#0F4C46"/>
+        <circle cx="118" cy="118" r="6" fill="#FAF7F2"/>
+        <circle cx="162" cy="118" r="6" fill="#FAF7F2"/>
+        <path d="M60 200c20-10 40-10 60 0M160 200c20-10 40-10 60 0" stroke="#D8674A" stroke-width="4" stroke-linecap="round"/>
+      </svg>
+    </div>
+  </section>
+
+  <section class="services" id="services">
+    <div class="section-label">Hamari Khidmaat</div>
+    <h2>Har umar ke liye dental care, ek hi jagah</h2>
+    <div class="service-list">
+      <div class="service-item"><h3>General Checkup</h3><p>Regular checkup aur cleaning, dono bachon aur bado ke liye.</p></div>
+      <div class="service-item"><h3>Cosmetic Dentistry</h3><p>Whitening, veneers, aur smile makeover treatments.</p></div>
+      <div class="service-item"><h3>Emergency Care</h3><p>Dant ka acha achanak dard? Same-day appointment available.</p></div>
+    </div>
+  </section>
+
+  <section class="doctors" id="doctors">
+    <h2>Hamari Team</h2>
+    <div id="doctorList"><p style="color:var(--muted); font-size:14px;">Loading...</p></div>
+  </section>
+</div>
+
+<div class="cta" id="contact">
+  <div class="wrap">
+    <h2>Aaj hi apni appointment book karein</h2>
+    <p>Hamara AI assistant chat ya call par turant available hai</p>
+    <a class="btn btn-primary" href="#" onclick="openChat(); return false;">Chat Se Book Karein</a>
+  </div>
+</div>
+
+<footer>
+  <div class="wrap">© <span id="footerYear"></span> <span id="clinicNameFooter">Dental Clinic</span>. Sab huqooq mehfooz.</div>
+</footer>
+
+<!-- Floating AI chat widget -->
+<div id="chatToggle" onclick="toggleChat()">💬</div>
+<div id="chatPanel">
+  <div class="chat-header" id="chatHeaderName">AI Receptionist</div>
+  <div id="chatMessages"></div>
+  <div class="chat-input-row">
+    <input type="text" id="chatInput" placeholder="Apna sawal likhein..." onkeypress="if(event.key==='Enter') sendMessage()">
+    <button onclick="sendMessage()">Bhejein</button>
+  </div>
+</div>
+
+<script>
+  // ---- Configuration ----
+  // Deploy karte waqt API_BASE ko apne backend URL se replace karein.
+  // CLINIC_SUBDOMAIN wahi hai jo signup ke waqt diya tha (subdomain field).
+  const API_BASE = "http://localhost:5000";
+  const CLINIC_SUBDOMAIN = "smilecare"; // <-- har clinic ke liye alag set hoga
+
+  const sessionId = "web-" + Date.now();
+  document.getElementById("footerYear").textContent = new Date().getFullYear();
+
+  async function loadClinicInfo() {
+    try {
+      const res = await fetch(`${API_BASE}/api/clinic-info`, {
+        headers: { "x-clinic-id": CLINIC_SUBDOMAIN },
+      });
+      const data = await res.json();
+
+      document.getElementById("pageTitle").textContent = data.name;
+      document.getElementById("clinicNameNav").textContent = data.name;
+      document.getElementById("clinicNameFooter").textContent = data.name;
+      document.getElementById("chatHeaderName").textContent = data.name + " — AI Assistant";
+
+      const doctorListEl = document.getElementById("doctorList");
+      if (data.doctors && data.doctors.length) {
+        doctorListEl.innerHTML = data.doctors.map(d => `
+          <div class="doctor-card">
+            <div class="name">${d.name}</div>
+            <div class="specialty">${d.specialty || ""}</div>
+            <div class="hours">${d.workingHours || ""}</div>
+          </div>`).join("");
+      } else {
+        doctorListEl.innerHTML = `<p style="color:var(--muted); font-size:14px;">Team info jald hi add hogi.</p>`;
+      }
+    } catch (err) {
+      console.error("Clinic info load nahi ho saki:", err);
+    }
+  }
+  loadClinicInfo();
+
+  function toggleChat() {
+    const panel = document.getElementById("chatPanel");
+    panel.classList.toggle("open");
+    if (panel.classList.contains("open") && !panel.dataset.greeted) {
+      addMessage("Assalam-o-Alaikum! Main aapki appointment book karne mein madad kar sakta hoon. Kya poochna chahenge?", "bot");
+      panel.dataset.greeted = "1";
+    }
+  }
+  function openChat() {
+    document.getElementById("chatPanel").classList.add("open");
+    toggleChat(); toggleChat(); // ensure greeted logic runs once
+  }
+
+  function addMessage(text, sender) {
+    const el = document.createElement("div");
+    el.className = `msg ${sender}`;
+    el.textContent = text;
+    const container = document.getElementById("chatMessages");
+    container.appendChild(el);
+    container.scrollTop = container.scrollHeight;
+  }
+
+  async function sendMessage() {
+    const input = document.getElementById("chatInput");
+    const message = input.value.trim();
+    if (!message) return;
+    addMessage(message, "user");
+    input.value = "";
+
+    try {
+      const res = await fetch(`${API_BASE}/api/receptionist/chat`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-clinic-id": CLINIC_SUBDOMAIN },
+        body: JSON.stringify({ sessionId, message }),
+      });
+      const data = await res.json();
+      addMessage(data.reply || "Maazrat, jawab nahi mil saka.", "bot");
+    } catch (err) {
+      addMessage("Server se connect nahi ho saka.", "bot");
+    }
+  }
+</script>
+
+</body>
+</html>
