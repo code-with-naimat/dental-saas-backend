@@ -59,7 +59,7 @@ app.use("/generated-invoices", express.static(path.join(__dirname, "generated-in
 
 // Health check
 app.get("/", (req, res) => {
-  res.json({ status: "AI Dental SaaS backend chal raha hai" });
+  res.json({ status: "AI Dental SaaS backend is running" });
 });
 
 app.use("/api/signup", signupRoutes);
@@ -79,5 +79,5 @@ startReminderScheduler();
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`Server chal raha hai: http://localhost:${PORT}`);
+  console.log(`Server is running at: http://localhost:${PORT}`);
 });

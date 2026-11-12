@@ -164,7 +164,7 @@
 <div id="loginScreen">
   <div class="login-card">
     <h1>Clinic Dashboard</h1>
-    <p>Apne clinic account mein sign in karein</p>
+    <p>Sign in to your clinic account</p>
     <label for="email">Email</label>
     <input type="email" id="email" placeholder="owner@clinic.com">
     <label for="password">Password</label>
@@ -172,7 +172,7 @@
     <button class="btn-primary" onclick="login()">Sign In</button>
     <p id="loginError"></p>
   <p style="text-align: center; font-size: 13px; margin-top: 15px;">
-  Naya clinic register karna hai? <a href="signup.html" style="color: #1B6E63;">Sign Up</a>
+  Don't have a clinic account? <a href="signup.html" style="color: #1B6E63;">Sign Up</a>
 </p>
 </div>
 </div>
@@ -276,7 +276,7 @@
       const data = await res.json();
 
       if (!res.ok) {
-        errorEl.textContent = data.error || "Login nahi ho saka";
+        errorEl.textContent = data.error || "Login failed";
         errorEl.style.display = "block";
         return;
       }
@@ -289,7 +289,7 @@
       document.getElementById("dashboard").style.display = "flex";
       loadAllData();
     } catch (err) {
-      errorEl.textContent = "Server se connect nahi ho saka";
+      errorEl.textContent = "Could not connect to server";
       errorEl.style.display = "block";
     }
   }
@@ -414,15 +414,15 @@
   }
 
   async function setDoctorLogin(id) {
-    const email = prompt("Doctor ka email:");
+    const email = prompt("Doctor's email:");
     if (!email) return;
-    const password = prompt("Doctor ke liye password set karein:");
+    const password = prompt("Set password for doctor:");
     if (!password) return;
     await apiFetch("/api/doctor-auth/set-password", {
       method: "POST",
       body: JSON.stringify({ doctorId: id, email, password }),
     });
-    alert("Doctor login set ho gaya. Doctor ab doctor-portal.html se login kar sakta hai.");
+    alert("Doctor login set sucessfully. Doctor can now login via doctor-portal.html.");
     loadAllData();
   }
 

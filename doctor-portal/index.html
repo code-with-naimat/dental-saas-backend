@@ -44,7 +44,7 @@
 <div id="loginScreen">
   <div class="login-card">
     <h1>Doctor Portal</h1>
-    <p>Apni working hours manage karein aur apne appointments dekhein</p>
+    <p>Manage your working hours and view your appointments</p>
     <label>Email</label><input type="email" id="email">
     <label>Password</label><input type="password" id="password">
     <button class="btn-primary" onclick="login()">Sign In</button>
@@ -59,21 +59,21 @@
   </div>
 
   <div class="panel">
-    <h2>Meri Working Hours</h2>
+    <h2>My Working Hours</h2>
     <label>Specialty</label><input type="text" id="specialty">
     <label>Working Hours</label><input type="text" id="workingHours" placeholder="Mon-Sat 10am-6pm">
-    <button class="btn-primary save-btn" onclick="saveProfile()">Update Karein</button>
+    <button class="btn-primary save-btn" onclick="saveProfile()">Update </button>
   </div>
 
   <div class="panel">
-    <h2>Mere Appointments</h2>
+    <h2>My Appointments</h2>
     <div id="appointmentsTable"></div>
   </div>
 </div>
 
 <script>
-  // Deploy karte waqt API_BASE aur CLINIC_SUBDOMAIN update karein
-  const API_BASE = "http://localhost:5000";
+  // Update API_BASE and CLINIC_SUBDOMAIN during deployment
+  const API_BASE = "https://dental-saas-backend-s9d8.onrender.com";
   const CLINIC_SUBDOMAIN = "smilecare";
 
   function getToken() { return localStorage.getItem("doctor_portal_token"); }
@@ -104,13 +104,13 @@
     const data = await res.json();
 
     if (!res.ok) {
-      errorEl.textContent = data.error || "Login nahi ho saka";
+      errorEl.textContent = data.error || "Login failed";
       errorEl.style.display = "block";
       return;
     }
 
     localStorage.setItem("doctor_portal_token", data.token);
-    document.getElementById("doctorNameLabel").textContent = "Assalam-o-Alaikum, " + data.doctor.name;
+    document.getElementById("doctorNameLabel").textContent = "Welcome, " + data.doctor.name;
     document.getElementById("loginScreen").style.display = "none";
     document.getElementById("portal").style.display = "block";
     loadData();
@@ -130,7 +130,7 @@
     const appointments = await apiFetch("/api/doctor-portal/appointments");
     const el = document.getElementById("appointmentsTable");
     if (!appointments.length) {
-      el.innerHTML = `<div class="empty-state">Abhi tak koi appointment nahi hai</div>`;
+      el.innerHTML = `<div class="empty-state">No appointments yet</div>`;
       return;
     }
     el.innerHTML = `
@@ -155,7 +155,7 @@
         workingHours: document.getElementById("workingHours").value,
       }),
     });
-    alert("Update ho gaya!");
+    alert("Updated successfully!");
   }
 </script>
 

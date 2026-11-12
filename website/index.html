@@ -172,14 +172,14 @@
       <a href="#doctors">Doctors</a>
       <a href="#contact">Contact</a>
     </div>
-    <a class="btn btn-primary" href="#" onclick="openChat(); return false;">Appointment Book Karein</a>
+    <a class="btn btn-primary" href="#" onclick="openChat(); return false;">Book Appointment </a>
   </nav>
 
   <section class="hero">
     <div>
-      <h1 id="heroHeadline">Aapki muskurahat, hamari zimmedari</h1>
-      <p>Modern dental care, ek friendly team ke sath. Booking, reminders, aur sawalat ke liye hamara AI assistant 24/7 hazir hai.</p>
-      <a class="btn btn-primary" href="#" onclick="openChat(); return false;">Abhi Appointment Book Karein</a>
+      <h1 id="heroHeadline">Your Smile, Our Responsibility</h1>
+      <p>Modern dental care with a friendly team. Our AI assistant is available 24/7 for bookings, reminders, and your questions.</p>
+      <a class="btn btn-primary" href="#" onclick="openChat(); return false;">Book Appointment Now </a>
     </div>
     <div class="hero-art">
       <svg width="280" height="280" viewBox="0 0 280 280" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -193,26 +193,26 @@
   </section>
 
   <section class="services" id="services">
-    <div class="section-label">Hamari Khidmaat</div>
-    <h2>Har umar ke liye dental care, ek hi jagah</h2>
+    <div class="section-label">Our Services</div>
+    <h2>Dental care for all ages, in one place</h2>
     <div class="service-list">
-      <div class="service-item"><h3>General Checkup</h3><p>Regular checkup aur cleaning, dono bachon aur bado ke liye.</p></div>
+      <div class="service-item"><h3>General Checkup</h3><p>Regular checkup and cleaning,for both kids and adults.</p></div>
       <div class="service-item"><h3>Cosmetic Dentistry</h3><p>Whitening, veneers, aur smile makeover treatments.</p></div>
-      <div class="service-item"><h3>Emergency Care</h3><p>Dant ka acha achanak dard? Same-day appointment available.</p></div>
+      <div class="service-item"><h3>Emergency Care</h3><p>Sudden toothache? Same-day appointments available.</p></div>
     </div>
   </section>
 
   <section class="doctors" id="doctors">
-    <h2>Hamari Team</h2>
+    <h2>Our Team</h2>
     <div id="doctorList"><p style="color:var(--muted); font-size:14px;">Loading...</p></div>
   </section>
 </div>
 
 <div class="cta" id="contact">
   <div class="wrap">
-    <h2>Aaj hi apni appointment book karein</h2>
-    <p>Hamara AI assistant chat ya call par turant available hai</p>
-    <a class="btn btn-primary" href="#" onclick="openChat(); return false;">Chat Se Book Karein</a>
+    <h2>Book your appointment today</h2>
+    <p>Our AI assistant is instantly available via chat or call </p>
+    <a class="btn btn-primary" href="#" onclick="openChat(); return false;">Book via chat</a>
   </div>
 </div>
 
@@ -226,17 +226,17 @@
   <div class="chat-header" id="chatHeaderName">AI Receptionist</div>
   <div id="chatMessages"></div>
   <div class="chat-input-row">
-    <input type="text" id="chatInput" placeholder="Apna sawal likhein..." onkeypress="if(event.key==='Enter') sendMessage()">
-    <button onclick="sendMessage()">Bhejein</button>
+    <input type="text" id="chatInput" placeholder="Ask me anything..." onkeypress="if(event.key==='Enter') sendMessage()">
+    <button onclick="sendMessage()">Send</button>
   </div>
 </div>
 
 <script>
   // ---- Configuration ----
-  // Deploy karte waqt API_BASE ko apne backend URL se replace karein.
-  // CLINIC_SUBDOMAIN wahi hai jo signup ke waqt diya tha (subdomain field).
-  const API_BASE = "http://localhost:5000";
-  const CLINIC_SUBDOMAIN = "smilecare"; // <-- har clinic ke liye alag set hoga
+  // Replace API_BASE with your live backend URL during deployment.
+  // CLINIC_SUBDOMAIN must match the subdomain entrered during signup.
+  const API_BASE = "https://dental-saas-backend-s9d8.onrender.com";
+  const CLINIC_SUBDOMAIN = "smilecare"; // <-- const CLINIC_SUBDOMAIN = "myclinic007";
 
   const sessionId = "web-" + Date.now();
   document.getElementById("footerYear").textContent = new Date().getFullYear();
@@ -306,9 +306,9 @@
         body: JSON.stringify({ sessionId, message }),
       });
       const data = await res.json();
-      addMessage(data.reply || "Maazrat, jawab nahi mil saka.", "bot");
+      addMessage(data.reply || "Sorry, I couldn't get a response.", "bot");
     } catch (err) {
-      addMessage("Server se connect nahi ho saka.", "bot");
+      addMessage("Could not connect to the server.", "bot");
     }
   }
 </script>
