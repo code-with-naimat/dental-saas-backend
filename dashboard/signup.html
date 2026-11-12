@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ur">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Register Clinic</title>
+<style>
+  body { font-family: 'Work Sans', sans-serif; background: #FBFAF6; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+  .card { background: #fff; padding: 40px 32px; border: 1px solid #D8E3DE; width: 100%; max-width: 400px; }
+  h1 { color: #0F4C46; font-size: 24px; margin-bottom: 20px; }
+  label { display: block; font-size: 13px; color: #6B7C78; margin-bottom: 6px; }
+  input { width: 100%; padding: 11px; border: 1px solid #D8E3DE; margin-bottom: 15px; font-family: inherit; box-sizing: border-box; }
+  button { width: 100%; background: #0F4C46; color: #fff; padding: 12px; border: none; cursor: pointer; font-size: 14px; font-weight: 500; }
+  button:hover { background: #1B6E63; }
+  .error { color: #D8674A; font-size: 13px; margin-top: 10px; display: none; }
+  .login-link { text-align: center; font-size: 13px; margin-top: 15px; }
+  .login-link a { color: #1B6E63; text-decoration: none; }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <h1>Register New Clinic</h1>
+  <form id="signupForm">
+    <label>Clinic Name</label>
+    <input type="text" id="clinicName" required placeholder="e.g. Smile Care">
+
+    <label>Subdomain (URL ke liye)</label>
+    <input type="text" id="subdomain" required placeholder="e.g. smilecare (chote letters)">
+
+    <label>Owner Email</label>
+    <input type="email" id="ownerEmail" required placeholder="owner@clinic.com">
+
+    <label>Password</label>
+    <input type="password" id="ownerPassword" required placeholder="••••••••">
+
+    <button type="submit" id="submitBtn">Register Clinic</button>
+  </form>
+  <p id="errorMsg" class="error"></p>
+  
+  <div class="login-link">
+    Pehle se account hai? <a href="index.html">Login karein</a>
+  </div>
+</div>
+
+<script>
+  // Yahan aapka Live Backend URL hai
+  const API_BASE = "https://dental-saas-backend-s9d8.onrender.com";
+
+  document.getElementById("signupForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById("submitBtn");
+    const errorEl = document.getElementById("errorMsg");
+    
+    btn.textContent = "Registering...";
+    btn.disabled = true;
+    errorEl.style.display = "none";
+
+    const bodyData = {
+      clinicName: document.getElementById("clinicName").value,
+      subdomain: document.getElementById("subdomain").value.toLowerCase(),
+      ownerEmail: document.getElementById("ownerEmail").value,
+      ownerPassword: document.getElementById("ownerPassword").value,
+      planType: "basic", // Default plan
+      price: 5000        // Default price
+    };
+
+    try {
+      const res = await fetch(API_BASE + "/api/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(bodyData)
+      });
+      
+      const data = await res.json();
+
+      if (!res.ok) {
+        errorEl.textContent = data.error || "Registration fail ho gayi";
+        errorEl.style.display = "block";
+      } else {
+        alert("Clinic successfully register ho gayi! Ab aap login kar sakte hain.");
+        window.location.href = "index.html"; // Login page par bhej dein
+      }
+    } catch (err) {
+      errorEl.textContent = "Server se connect nahi ho saka. Internet check karein.";
+      errorEl.style.display = "block";
+    } finally {
+      btn.textContent = "Register Clinic";
+      btn.disabled = false;
+    }
+  });
+</script>
+
+</body>
+</html>
